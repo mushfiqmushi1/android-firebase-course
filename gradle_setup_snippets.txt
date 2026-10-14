@@ -1,0 +1,80 @@
+# Gradle setup snippets (Lesson 02)
+# Copy-paste ready. Groovy DSL (build.gradle).
+# Check https://firebase.google.com/docs/android/setup for the latest versions.
+
+# ============================================================
+# FILE 1: project-level build.gradle (the one in the project ROOT)
+# Add the google-services plugin to the plugins block:
+# ============================================================
+
+plugins {
+    id 'com.android.application' version '8.5.2' apply false
+    id 'org.jetbrains.kotlin.android' version '1.9.24' apply false
+    id 'com.google.gms.google-services' version '4.4.2' apply false
+}
+
+
+# ============================================================
+# FILE 2: app-level build.gradle (the one inside app/)
+# Apply the plugin + add Firebase dependencies:
+# ============================================================
+
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'   // <-- must be LAST in this block
+}
+
+android {
+    namespace 'com.example.firecourse'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.example.firecourse"   // must match Firebase console!
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildFeatures {
+        viewBinding true   // needed for the sample activities
+    }
+}
+
+dependencies {
+    // Firebase BoM — manages all Firebase library versions for you
+    implementation platform('com.google.firebase:firebase-bom:34.0.0')
+
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-firestore'
+    implementation 'com.google.firebase:firebase-storage'
+    implementation 'com.google.firebase:firebase-messaging'
+
+    // Google Sign-In
+    implementation 'com.google.android.gms:play-services-auth:21.2.0'
+
+    // (Optional) image loading for Storage URLs — used in lesson 06
+    // implementation 'io.coil-kt:coil:2.6.0'
+}
+
+
+# ============================================================
+# FILE 3: AndroidManifest.xml additions (inside <manifest>)
+# ============================================================
+
+<!-- FCM service (Lesson 07) -->
+<service
+    android:name=".MyMessagingService"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="com.google.firebase.MESSAGING_EVENT" />
+    </intent-filter>
+</service>
+
+<!-- Notification permission (Android 13+, Lesson 07) -->
+<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+<!-- Internet is granted by default via the google-services plugin setup,
+     but if you ever need it explicitly: -->
+<!-- <uses-permission android:name="android.permission.INTERNET" /> -->
